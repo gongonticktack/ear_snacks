@@ -12,10 +12,19 @@
     <span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span>
   </div>
   <div class="header-inner">
-    <h1>仕組みを基礎から</h1>
-    <p class="header-sub">ITAIST — AI・IT・金融の仕組みを基礎から</p>
-    <div class="header-tools">
-      <select id="palette-select" aria-label="カラーパレット"></select>
+    <div class="header-top">
+      <div class="header-title">
+        <h1>仕組みを基礎から</h1>
+        <p class="header-sub">ITAIST — AI・IT・金融の仕組みを基礎から</p>
+      </div>
+      <div class="palette-dropdown" id="palette-dropdown">
+        <button type="button" class="palette-button" id="palette-button" aria-haspopup="listbox" aria-expanded="false" aria-label="カラーパレット">
+          <span class="palette-swatch" id="palette-current-swatch" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="palette-button-name" id="palette-current-name"></span>
+          <span class="palette-caret" aria-hidden="true">▽</span>
+        </button>
+        <div class="palette-menu" id="palette-menu" role="listbox" aria-label="カラーパレット" hidden></div>
+      </div>
     </div>
   </div>
 </header>

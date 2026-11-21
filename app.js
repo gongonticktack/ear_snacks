@@ -147,22 +147,84 @@ function applyPalette(palette) {
   });
 }
 
+// パレットの4色ストライプ（41/26/18/15）サンプルを作る
+function buildSwatch(colors) {
+  const swatch = el("span", "palette-swatch");
+  swatch.setAttribute("aria-hidden", "true");
+  colors.forEach((c) => {
+    const seg = document.createElement("span");
+    seg.style.background = c;
+    swatch.appendChild(seg);
+  });
+  return swatch;
+}
+
 function initPalette() {
-  const select = document.getElementById("palette-select");
-  PALETTES.forEach((p, i) => {
-    const opt = document.createElement("option");
-    opt.value = String(i);
-    opt.textContent = p.name;
-    select.appendChild(opt);
+  const dropdown = document.getElementById("palette-dropdown");
+  const button = document.getElementById("palette-button");
+  const menu = document.getElementById("palette-menu");
+  const currentSwatch = document.getElementById("palette-current-swatch");
+  const currentName = document.getElementById("palette-current-name");
+  let current = -1;
+
+  function renderMenu() {
+    menu.innerHTML = "";
+    PALETTES.forEach((p, i) => {
+      const item = el("button", "palette-item");
+      item.type = "button";
+      item.setAttribute("role", "option");
+      item.setAttribute("aria-selected", String(i === current));
+      if (i === current) item.classList.add("is-selected");
+      item.appendChild(buildSwatch(p.colors));
+      item.appendChild(el("span", "palette-item-name", p.name));
+      item.appendChild(
+        el("span", "palette-item-check", i === current ? "✓" : "")
+      );
+      item.addEventListener("click", () => {
+        select(i);
+        closeMenu();
+        button.focus();
+      });
+      menu.appendChild(item);
+    });
+  }
+
+  function select(i) {
+    current = i;
+    applyPalette(PALETTES[i]);
+    currentName.textContent = PALETTES[i].name;
+    currentSwatch.querySelectorAll("span").forEach((seg, j) => {
+      if (PALETTES[i].colors[j]) seg.style.background = PALETTES[i].colors[j];
+    });
+    renderMenu();
+  }
+
+  function openMenu() {
+    menu.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+  }
+  function closeMenu() {
+    menu.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+  }
+
+  button.addEventListener("click", () => {
+    if (menu.hidden) openMenu();
+    else closeMenu();
   });
+  document.addEventListener("click", (e) => {
+    if (!menu.hidden && !dropdown.contains(e.target)) closeMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) {
+      closeMenu();
+      button.focus();
+    }
+  });
+
   // アクセスごとにランダムで1つ選ぶ（前回の選択は保存・復元しない）
-  const initial = Math.floor(Math.random() * PALETTES.length);
-  select.value = String(initial);
-  applyPalette(PALETTES[initial]);
-  // プルダウンで選んだ場合はその訪問中だけ即時反映する
-  select.addEventListener("change", () => {
-    applyPalette(PALETTES[Number(select.value)]);
-  });
+  // ドロップダウンで選んだ場合はその訪問中だけ即時反映する
+  select(Math.floor(Math.random() * PALETTES.length));
 }
 let allEpisodes = [];
 
