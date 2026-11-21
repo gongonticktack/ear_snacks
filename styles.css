@@ -1,17 +1,23 @@
 /* 仕組みを基礎から（ITAIST）
-   Color Hunt パレット: #364F6B / #3FC1C7 / #F5F5F5 / #FC5185
-   メイン #364F6B / サブ #3FC1C7 / アクセント #FC5185 / 背景は #364F6B・#3FC1C7 系から派生 */
+   配色は Color Hunt の4色パレットを JS（app.js の PALETTES）から
+   CSS変数へ適用して駆動する。パレット順の比重イメージは
+   メイン41% / サブ26% / ライト18% / アクセント15%（ヘッダーのストライプ）。
+   背景はパレットから導出し、最も明るい色を背景に固定しない。
+   :root の初期値は現行パレット #364F6B / #3FC1C7 / #F5F5F5 / #FC5185。 */
 :root {
   --main: #364f6b;
   --sub: #3fc1c7;
   --light: #f5f5f5;
   --accent: #fc5185;
+  --accent-text: #bc1b5e;
   --bg: #eef5f6;
   --surface: #ffffff;
   --surface-muted: #e2eef0;
   --text: #22374d;
   --muted: #5f7488;
   --border: #cfdee2;
+  --on-main: #ffffff;
+  --header-sub: #c3d9e2;
 }
 
 * { box-sizing: border-box; }
@@ -28,7 +34,7 @@ body {
 /* ヘッダー */
 .site-header {
   background: var(--main);
-  color: #fff;
+  color: var(--on-main);
 }
 .palette-stripe {
   display: flex;
@@ -50,8 +56,23 @@ body {
 }
 .header-sub {
   margin: 4px 0 0;
-  color: #c3d9e2;
+  color: var(--header-sub);
   font-size: 0.95rem;
+}
+.header-tools {
+  margin-top: 14px;
+}
+.header-tools select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--text);
+}
+.header-tools select:focus {
+  outline: 2px solid var(--sub);
+  outline-offset: 1px;
 }
 
 main {
@@ -80,7 +101,7 @@ main {
 .summary-num {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--main);
+  color: color-mix(in srgb, var(--main) 50%, var(--text));
 }
 .summary-label {
   font-size: 0.85rem;
@@ -118,7 +139,7 @@ main {
 }
 
 .status-msg {
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -148,7 +169,7 @@ main {
 .ep-num {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--main);
+  color: color-mix(in srgb, var(--main) 35%, var(--text));
   background: var(--surface-muted);
   padding: 2px 10px;
   border-radius: 999px;
@@ -165,8 +186,14 @@ main {
   border-radius: 999px;
   white-space: nowrap;
 }
-.badge-listened { background: #d3eef0; color: #0f5f63; }
-.badge-favorite { background: #fde0ec; color: #a50e42; }
+.badge-listened {
+  background: color-mix(in srgb, var(--sub) 24%, var(--surface));
+  color: color-mix(in srgb, var(--sub) 55%, var(--text));
+}
+.badge-favorite {
+  background: color-mix(in srgb, var(--accent) 24%, var(--surface));
+  color: var(--accent-text);
+}
 
 .card-title {
   font-size: 1.12rem;

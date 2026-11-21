@@ -1,5 +1,169 @@
 // 仕組みを基礎から（ITAIST） — /api/episodes から取得し、失敗時は Supabase REST へ直接フォールバック
 
+// カラーパレット（Color Hunt の人気パレットから選定、現行・他サイト使用分は除外）
+// テーマは音声・夜・集中に合うクール系／深めの色を中心に系統がバラけるよう選んだ。
+// colors: パレット本来の4色（ストライプ表示用、比重 41/26/18/15）
+// vars:   役割（メイン/サブ/ライト/アクセント）と、パレットから導出した
+//         背景・面・文字色。暗いパレットは暗背景＋明文字、明るいパレットは
+//         明背景＋暗文字になるよう各パレットごとに定義する。
+const PALETTES = [
+  {
+    name: "Plum Noir",
+    colors: ["#200F21", "#5A1846", "#9C1D64", "#F8615A"],
+    vars: {
+      main: "#5A1846", sub: "#9C1D64", light: "#F8615A", accent: "#9C1D64",
+      accentText: "#E88BB8",
+      bg: "#180A18", surface: "#271228", surfaceMuted: "#331A34",
+      text: "#F6EAF2", muted: "#C4A3BC", border: "#47264A",
+      onMain: "#FFFFFF", headerSub: "#E3B7D4",
+    },
+  },
+  {
+    name: "Deep Space",
+    colors: ["#070F2B", "#1B1A55", "#535C91", "#9290C3"],
+    vars: {
+      main: "#1B1A55", sub: "#535C91", light: "#9290C3", accent: "#535C91",
+      accentText: "#B9B7DC",
+      bg: "#070F2B", surface: "#171740", surfaceMuted: "#23234D",
+      text: "#ECECF6", muted: "#A3A1C7", border: "#2E2E5C",
+      onMain: "#FFFFFF", headerSub: "#9290C3",
+    },
+  },
+  {
+    name: "Violet Abyss",
+    colors: ["#635985", "#443C68", "#393053", "#18122B"],
+    vars: {
+      main: "#393053", sub: "#635985", light: "#443C68", accent: "#635985",
+      accentText: "#B3A6D9",
+      bg: "#18122B", surface: "#241C40", surfaceMuted: "#2E2450",
+      text: "#EFEAF8", muted: "#ADA3C9", border: "#3A2F5E",
+      onMain: "#FFFFFF", headerSub: "#C4B9E2",
+    },
+  },
+  {
+    name: "Abyss Teal",
+    colors: ["#040D12", "#183D3D", "#5C8374", "#93B1A6"],
+    vars: {
+      main: "#183D3D", sub: "#5C8374", light: "#93B1A6", accent: "#5C8374",
+      accentText: "#93C4B2",
+      bg: "#040D12", surface: "#0D2224", surfaceMuted: "#173638",
+      text: "#E6F2EE", muted: "#93B1A6", border: "#23484A",
+      onMain: "#FFFFFF", headerSub: "#93B1A6",
+    },
+  },
+  {
+    name: "Arctic Slate",
+    colors: ["#27374D", "#526D82", "#9DB2BF", "#DDE6ED"],
+    vars: {
+      main: "#27374D", sub: "#526D82", light: "#DDE6ED", accent: "#526D82",
+      accentText: "#3D5A74",
+      bg: "#EDF1F5", surface: "#FFFFFF", surfaceMuted: "#DDE6ED",
+      text: "#1E2C3E", muted: "#526D82", border: "#C3D0DB",
+      onMain: "#FFFFFF", headerSub: "#C7D5E2",
+    },
+  },
+  {
+    name: "Ocean Depth",
+    colors: ["#0A2647", "#144272", "#205295", "#2C74B3"],
+    vars: {
+      main: "#0A2647", sub: "#2C74B3", light: "#205295", accent: "#2C74B3",
+      accentText: "#7FB0DE",
+      bg: "#061A33", surface: "#0A2647", surfaceMuted: "#103763",
+      text: "#E9F1F9", muted: "#9DB8D6", border: "#1D4470",
+      onMain: "#FFFFFF", headerSub: "#A9C6E4",
+    },
+  },
+  {
+    name: "Lavender Haze",
+    colors: ["#F4EEFF", "#DCD6F7", "#A6B1E1", "#424874"],
+    vars: {
+      main: "#424874", sub: "#7A6FC0", light: "#F4EEFF", accent: "#A6B1E1",
+      accentText: "#5A4E9E",
+      bg: "#F7F4FD", surface: "#FFFFFF", surfaceMuted: "#E9E2F7",
+      text: "#2E2A4A", muted: "#6B6390", border: "#DCD6F7",
+      onMain: "#FFFFFF", headerSub: "#D8D2F0",
+    },
+  },
+  {
+    name: "Neon Pulse",
+    colors: ["#212121", "#323232", "#0D7377", "#14FFEC"],
+    vars: {
+      main: "#212121", sub: "#0D7377", light: "#323232", accent: "#14FFEC",
+      accentText: "#14FFEC",
+      bg: "#121212", surface: "#212121", surfaceMuted: "#2B2B2B",
+      text: "#F0F0F0", muted: "#A8A8A8", border: "#3A3A3A",
+      onMain: "#FFFFFF", headerSub: "#BDBDBD",
+    },
+  },
+  {
+    name: "Ultraviolet",
+    colors: ["#000000", "#52057B", "#892CDC", "#BC6FF1"],
+    vars: {
+      main: "#52057B", sub: "#892CDC", light: "#BC6FF1", accent: "#BC6FF1",
+      accentText: "#D3A1F5",
+      bg: "#0D0214", surface: "#1D0730", surfaceMuted: "#2A0E42",
+      text: "#F4EBFC", muted: "#BFA3D9", border: "#3B1660",
+      onMain: "#FFFFFF", headerSub: "#D9BFF2",
+    },
+  },
+  {
+    name: "Mint Studio",
+    colors: ["#E4F9F5", "#A6E3E9", "#71C9CE", "#11999E"],
+    vars: {
+      main: "#11999E", sub: "#71C9CE", light: "#E4F9F5", accent: "#71C9CE",
+      accentText: "#0B7A7E",
+      bg: "#F2FAF8", surface: "#FFFFFF", surfaceMuted: "#E0F2EE",
+      text: "#173F3D", muted: "#527A76", border: "#C4E2DC",
+      onMain: "#FFFFFF", headerSub: "#DFF5EF",
+    },
+  },
+];
+
+const PALETTE_VAR_KEYS = {
+  main: "--main",
+  sub: "--sub",
+  light: "--light",
+  accent: "--accent",
+  accentText: "--accent-text",
+  bg: "--bg",
+  surface: "--surface",
+  surfaceMuted: "--surface-muted",
+  text: "--text",
+  muted: "--muted",
+  border: "--border",
+  onMain: "--on-main",
+  headerSub: "--header-sub",
+};
+
+function applyPalette(palette) {
+  const root = document.documentElement;
+  for (const [key, cssVar] of Object.entries(PALETTE_VAR_KEYS)) {
+    root.style.setProperty(cssVar, palette.vars[key]);
+  }
+  // ストライプはパレット本来の4色をそのまま使う
+  const stripe = document.querySelectorAll(".palette-stripe > span");
+  stripe.forEach((span, i) => {
+    if (palette.colors[i]) span.style.background = palette.colors[i];
+  });
+}
+
+function initPalette() {
+  const select = document.getElementById("palette-select");
+  PALETTES.forEach((p, i) => {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = p.name;
+    select.appendChild(opt);
+  });
+  // アクセスごとにランダムで1つ選ぶ（前回の選択は保存・復元しない）
+  const initial = Math.floor(Math.random() * PALETTES.length);
+  select.value = String(initial);
+  applyPalette(PALETTES[initial]);
+  // プルダウンで選んだ場合はその訪問中だけ即時反映する
+  select.addEventListener("change", () => {
+    applyPalette(PALETTES[Number(select.value)]);
+  });
+}
 let allEpisodes = [];
 
 async function fetchEpisodes() {
@@ -146,4 +310,5 @@ async function init() {
   document.getElementById("sort-order").addEventListener("change", render);
 }
 
+initPalette();
 init();
