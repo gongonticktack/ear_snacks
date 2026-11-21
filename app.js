@@ -175,11 +175,13 @@ function initPalette() {
       item.setAttribute("role", "option");
       item.setAttribute("aria-selected", String(i === current));
       if (i === current) item.classList.add("is-selected");
-      item.appendChild(buildSwatch(p.colors));
-      item.appendChild(el("span", "palette-item-name", p.name));
-      item.appendChild(
+      const head = el("span", "palette-item-head");
+      head.appendChild(el("span", "palette-item-name", p.name));
+      head.appendChild(
         el("span", "palette-item-check", i === current ? "✓" : "")
       );
+      item.appendChild(head);
+      item.appendChild(buildSwatch(p.colors));
       item.addEventListener("click", () => {
         select(i);
         closeMenu();
