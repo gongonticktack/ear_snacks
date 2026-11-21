@@ -1,0 +1,209 @@
+/* 仕組みを基礎から（ITAIST）
+   Color Hunt パレット: #364F6B / #3FC1C7 / #F5F5F5 / #FC5185
+   メイン #364F6B / サブ #3FC1C7 / アクセント #FC5185 / 背景は #364F6B・#3FC1C7 系から派生 */
+:root {
+  --main: #364f6b;
+  --sub: #3fc1c7;
+  --light: #f5f5f5;
+  --accent: #fc5185;
+  --bg: #eef5f6;
+  --surface: #ffffff;
+  --surface-muted: #e2eef0;
+  --text: #22374d;
+  --muted: #5f7488;
+  --border: #cfdee2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP",
+    "Yu Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ヘッダー */
+.site-header {
+  background: var(--main);
+  color: #fff;
+}
+.palette-stripe {
+  display: flex;
+  height: 10px;
+}
+.palette-stripe .s1 { flex: 41; background: var(--main); }
+.palette-stripe .s2 { flex: 26; background: var(--sub); }
+.palette-stripe .s3 { flex: 18; background: var(--light); }
+.palette-stripe .s4 { flex: 15; background: var(--accent); }
+.header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 20px 24px;
+}
+.header-inner h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  letter-spacing: 0.04em;
+}
+.header-sub {
+  margin: 4px 0 0;
+  color: #c3d9e2;
+  font-size: 0.95rem;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 集計帯 */
+.summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.summary-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 120px;
+}
+.summary-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--main);
+}
+.summary-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* 検索・並び替え */
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.controls input[type="search"] {
+  flex: 1 1 220px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--surface);
+  color: var(--text);
+}
+.controls select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--surface);
+  color: var(--text);
+}
+.controls input:focus,
+.controls select:focus {
+  outline: 2px solid var(--sub);
+  outline-offset: 1px;
+}
+
+.status-msg {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* カード */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--sub);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ep-num {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--main);
+  background: var(--surface-muted);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.card-marks {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-listened { background: #d3eef0; color: #0f5f63; }
+.badge-favorite { background: #fde0ec; color: #a50e42; }
+
+.card-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.45;
+}
+.card-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.card-desc { margin: 0; font-size: 0.95rem; }
+.card-memo {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  background: var(--surface-muted);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.card-audio {
+  margin-top: auto;
+  width: 100%;
+}
+
+footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 10px 20px 32px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .cards { grid-template-columns: 1fr; }
+  .header-inner h1 { font-size: 1.5rem; }
+}

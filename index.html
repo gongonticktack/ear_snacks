@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>仕組みを基礎から | ITAIST</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="palette-stripe" aria-hidden="true">
+    <span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span>
+  </div>
+  <div class="header-inner">
+    <h1>仕組みを基礎から</h1>
+    <p class="header-sub">ITAIST — AI・IT・金融の仕組みを基礎から</p>
+  </div>
+</header>
+
+<main>
+  <section class="summary" id="summary" aria-label="集計">
+    <div class="summary-item"><span class="summary-num" id="count-total">–</span><span class="summary-label">エピソード</span></div>
+    <div class="summary-item"><span class="summary-num" id="count-listened">–</span><span class="summary-label">聴いた</span></div>
+    <div class="summary-item"><span class="summary-num" id="count-shown">–</span><span class="summary-label">表示中</span></div>
+  </section>
+
+  <section class="controls" aria-label="検索と並び替え">
+    <input type="search" id="search" placeholder="検索（タイトル・説明）" autocomplete="off">
+    <select id="sort-order" aria-label="並び順">
+      <option value="desc">新しい順</option>
+      <option value="asc">古い順</option>
+    </select>
+  </section>
+
+  <p class="status-msg" id="status-msg" hidden></p>
+  <div id="episodes" class="cards"></div>
+</main>
+
+<footer>
+  <p>データ： Supabase（podcast_episodes）</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
