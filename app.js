@@ -6,6 +6,9 @@
 // vars:   役割（メイン/サブ/ライト/アクセント）と、パレットから導出した
 //         背景・面・文字色。暗いパレットは暗背景＋明文字、明るいパレットは
 //         明背景＋暗文字になるよう各パレットごとに定義する。
+// darkVars: 端末がダークモードのときだけ使う暗色版（明るいパレットにのみ定義）。
+//         ダークモードでは、元々暗いパレットは vars のまま表示し、明るい
+//         パレットだけ darkVars に切り替える（2026-11-22 Gomi指示）。
 const PALETTES = [
   {
     name: "Plum Noir",
@@ -61,6 +64,13 @@ const PALETTES = [
       text: "#1E2C3E", muted: "#526D82", border: "#C3D0DB",
       onMain: "#FFFFFF", headerSub: "#C7D5E2",
     },
+    darkVars: {
+      main: "#526D82", sub: "#7C96AC", light: "#9DB2BF", accent: "#7FA8CC",
+      accentText: "#A9C6DE",
+      bg: "#101A26", surface: "#1A2836", surfaceMuted: "#243448",
+      text: "#E9F0F6", muted: "#9DB2BF", border: "#2E4258",
+      onMain: "#FFFFFF", headerSub: "#E9F0F6",
+    },
   },
   {
     name: "Ocean Depth",
@@ -82,6 +92,13 @@ const PALETTES = [
       bg: "#F7F4FD", surface: "#FFFFFF", surfaceMuted: "#E9E2F7",
       text: "#2E2A4A", muted: "#6B6390", border: "#DCD6F7",
       onMain: "#FFFFFF", headerSub: "#D8D2F0",
+    },
+    darkVars: {
+      main: "#5A5FA0", sub: "#A6B1E1", light: "#7A6FC0", accent: "#A6B1E1",
+      accentText: "#C3CBEE",
+      bg: "#12131F", surface: "#1D1E33", surfaceMuted: "#282A45",
+      text: "#F4EEFF", muted: "#A6B1E1", border: "#363863",
+      onMain: "#FFFFFF", headerSub: "#E6E1FA",
     },
   },
   {
@@ -116,6 +133,13 @@ const PALETTES = [
       text: "#173F3D", muted: "#527A76", border: "#C4E2DC",
       onMain: "#FFFFFF", headerSub: "#DFF5EF",
     },
+    darkVars: {
+      main: "#0B7A7E", sub: "#17AEB4", light: "#71C9CE", accent: "#71C9CE",
+      accentText: "#9ADFE3",
+      bg: "#05292B", surface: "#0A3A3C", surfaceMuted: "#0F4A4C",
+      text: "#E4F9F5", muted: "#93C9CC", border: "#17585A",
+      onMain: "#FFFFFF", headerSub: "#E4F9F5",
+    },
   },
 ];
 
@@ -135,10 +159,26 @@ const PALETTE_VAR_KEYS = {
   headerSub: "--header-sub",
 };
 
+const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+let activePalette = null;
+
+// ダークモード時は、明るいパレットだけ darkVars（暗色版）に切り替える。
+// 元々暗いパレット（darkVars を持たない）はそのまま使う。
+function effectiveVars(palette) {
+  if (darkModeQuery.matches && palette.darkVars) return palette.darkVars;
+  return palette.vars;
+}
+
+darkModeQuery.addEventListener("change", () => {
+  if (activePalette) applyPalette(activePalette);
+});
+
 function applyPalette(palette) {
+  activePalette = palette;
+  const vars = effectiveVars(palette);
   const root = document.documentElement;
   for (const [key, cssVar] of Object.entries(PALETTE_VAR_KEYS)) {
-    root.style.setProperty(cssVar, palette.vars[key]);
+    root.style.setProperty(cssVar, vars[key]);
   }
   // ストライプはパレット本来の4色をそのまま使う
   const stripe = document.querySelectorAll(".palette-stripe > span");
